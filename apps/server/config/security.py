@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 
 from .settings import settings
 import database
-import models
 
 # Contexto para encriptar contraseñas
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -54,6 +53,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Token inválido o expirado")
         
+    import models
     user = db.query(models.User).filter(models.User.username == username).first()
     if user is None:
         raise HTTPException(status_code=401, detail="Usuario no encontrado")

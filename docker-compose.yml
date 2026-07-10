@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: nidus_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-baby_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-baby_secure_password_2026}
+      POSTGRES_DB: ${DB_NAME:-nidus_monitor}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - nidus_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    container_name: nidus_server
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://baby_admin:baby_secure_password_2026@db:5432/nidus_monitor}
+      - PORT=${PORT:-8000}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000}
+      - JWT_SECRET=${JWT_SECRET:-super_secret_baby_key_2026_random_long}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
+      - FCM_CREDENTIALS_PATH=${FCM_CREDENTIALS_PATH:-/app/secrets/serviceAccountKey.json}
+      - PROCESS_FPS=${PROCESS_FPS:-5}
+      - PROCESS_WIDTH=${PROCESS_WIDTH:-320}
+      - PROCESS_HEIGHT=${PROCESS_HEIGHT:-240}
+      - EAR_THRESHOLD=${EAR_THRESHOLD:-0.2}
+      - EAR_CONSECUTIVE_FRAMES=${EAR_CONSECUTIVE_FRAMES:-15}
+    volumes:
+      - ./apps/server:/app
+    command: python main.py
+
+volumes:
+  nidus_postgres_data:
+

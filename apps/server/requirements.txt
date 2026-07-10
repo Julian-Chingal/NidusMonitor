@@ -1,0 +1,14 @@
+fastapi>=0.110.0
+uvicorn>=0.28.0
+python-socketio>=5.11.1
+aiortc>=1.8.0
+opencv-python-headless>=4.9.0.80
+mediapipe>=0.10.11
+sqlalchemy>=2.0.28
+psycopg2-binary>=2.9.9
+pyjwt>=2.8.0
+passlib[bcrypt]>=1.7.4
+pydantic>=2.6.4
+pydantic-settings>=2.2.1
+firebase-admin>=6.5.0
+av>=11.0.0
